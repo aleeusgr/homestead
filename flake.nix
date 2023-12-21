@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-20.03";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
 
   outputs = { self, nixpkgs }: {
 
@@ -20,7 +20,7 @@
             # Enable a web server.
             services.httpd = {
               enable = true;
-              adminAddr = "morty@example.org";
+              adminAddr = "alexeusgr@gmail.com";
             };
           })
         ];

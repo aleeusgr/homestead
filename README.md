@@ -14,5 +14,6 @@ Clicking on an address the user sees the following picture in their browser.
                 ||     ||
 [guest $]
 ```
+The user is expected to type `help`, `view_note`, or any of the avaliable commands to get to a new location: blog, contact info, IoT mesh, etc.
 
 https://en.wikipedia.org/wiki/Multi-user_dungeon

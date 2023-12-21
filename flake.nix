@@ -3,16 +3,26 @@
 
   outputs = { self, nixpkgs }: {
 
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.my-script;
+    defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
 
-    packages.x86_64-linux.my-script =
+    packages.x86_64-linux.view_note =
       let
         pkgs = import nixpkgs { system = "x86_64-linux"; };
       in
-      pkgs.writeShellScriptBin "my-script" ''
+      pkgs.writeShellScriptBin "view_note" ''
+        ${pkgs.cowsay}/bin/cowsay Note says: help, who, what, where.
+      '';
+
+    packages.x86_64-linux.hello =
+      let
+        pkgs = import nixpkgs { system = "x86_64-linux"; };
+      in
+      pkgs.writeShellScriptBin "hello" ''
         DATE="$(${pkgs.ddate}/bin/ddate +'the %e of %B%, %Y')"
         ${pkgs.cowsay}/bin/cowsay Today is $DATE. You are standing west of house. There is a note at the wall.
       '';
+
+    # #5 and #7, lets go to the moon and get it running on an embedded device.  
     nixosConfigurations.container = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules =

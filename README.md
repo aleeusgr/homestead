@@ -1,5 +1,7 @@
 Zork-inspired personal website. 
-The vision is a shell in the browser with suggestions to the user on next steps in discovering me. 
+The vision is a shell in the browser with suggestions to the user on next steps.
+First create a wall and a note. The wall in itself only is a reference to the first screen the user saw when they were running the game on their machine.
+
 Clicking on an address the user sees the following picture in their browser. 
 
 ```shell

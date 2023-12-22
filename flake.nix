@@ -15,12 +15,14 @@
 
       mako = (with pkgs; stdenv.mkDerivation {
           pname = "mako";
-          version = "3.3.1";
+          version = "3158b48586e7dcdfe29777181c5274328d96921a";
           src = fetchgit {
             url = "https://github.com/nzinfo/MakoServer";
-            rev = "v3.3.1";
-            sha256 = "pBrsey0RpxxvlwSKrOJEBQp7Hd9Yzr5w5OdUuyFpgF8=";
-            fetchSubmodules = true;
+            rev = "3158b48586e7dcdfe29777181c5274328d96921a";
+            sha256 = "SuRn81V4rEHTe/FZzoMfylrEiqgRkbIaYrohWMNR+3Q=";
+            fetchSubmodules = false;
+            leaveDotGit = false;
+            deepClone = false;
           };
           nativeBuildInputs = [
             clang

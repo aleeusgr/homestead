@@ -13,6 +13,27 @@
         inherit system;
       };
 
+      mako = (with pkgs; stdenv.mkDerivation {
+          pname = "mako";
+          version = "3.3.1";
+          src = fetchgit {
+            url = "https://github.com/nzinfo/MakoServer";
+            rev = "v3.3.1";
+            sha256 = "pBrsey0RpxxvlwSKrOJEBQp7Hd9Yzr5w5OdUuyFpgF8=";
+            fetchSubmodules = true;
+          };
+          nativeBuildInputs = [
+            clang
+            cmake
+          ];
+          buildPhase = "make -j $NIX_BUILD_CORES";
+          installPhase = ''
+            mkdir -p $out/bin
+            mv $TMP/LightGBM/lightgbm $out/bin
+          '';
+        }
+      );
+
     in rec {
       defaultApp = flake-utils.lib.mkApp {
         drv = defaultPackage;
@@ -25,7 +46,7 @@
       defaultPackage = hello;
       # devShell = pkgs.mkShell {
       #   buildInputs = [
-      #     lightgbm-cli
+      #     mako
       #   ];
       # };
     }

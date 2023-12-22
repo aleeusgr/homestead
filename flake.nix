@@ -45,12 +45,12 @@
         ${pkgs.cowsay}/bin/cowsay Today is $DATE. You are standing west of house. There is a note at the wall.
       '';
 
-      defaultPackage = hello;
-      # devShell = pkgs.mkShell {
-      #   buildInputs = [
-      #     mako
-      #   ];
-      # };
+      defaultPackage = mako;
+      devShell = pkgs.mkShell {
+        buildInputs = [
+          mako
+        ];
+      };
     }
   );
 }

@@ -22,6 +22,8 @@
         ${pkgs.cowsay}/bin/cowsay Today is $DATE. You are standing west of house. There is a note at the wall.
       '';
 
+    # The package is a web shell.
+
     # #5 and #7, lets go to the moon and get it running on an embedded device.  
     nixosConfigurations.container = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";

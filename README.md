@@ -1,8 +1,5 @@
-Zork-inspired personal website. 
-The vision is a shell in the browser with suggestions to the user on next steps.
-First create a wall and a note. The wall in itself only is a reference to the first screen the user saw when they were running the game on their machine.
-
-Clicking on an address the user sees the following picture in their browser. 
+Zork-inspired personal website - a hacky thing. 
+Imagine yourself a user of a personal website which works like the game - Zork!
 
 ```shell
 / Today is the 63rd of The Aftermath    \
@@ -16,7 +13,13 @@ Clicking on an address the user sees the following picture in their browser.
                 ||     ||
 [guest $]
 ```
-The user is expected to type `help`, `view_note`, or any of the avaliable commands to get to a new location: blog, contact info, IoT mesh, etc.
+
+## how to use?
+- rent a server
+- deploy the app
+- personalize
+- pair with pAI
+
 
 # Reference
 https://en.wikipedia.org/wiki/Multi-user_dungeon

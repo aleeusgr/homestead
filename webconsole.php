@@ -778,10 +778,228 @@ class WebConsoleRPCServer extends BaseJsonRpcServer {
         $result = $this->initialize($token, $environment);
         if ($result) return $result;
 
-        $output = ($command && !is_empty_string($command)) ? execute_command($command) : '';
-        if ($output && substr($output, -1) == "\n") $output = substr($output, 0, -1);
+        $command = trim((string) $command);
+        if (empty($command)) {
+            return array('output' => '');
+        }
 
-        return array('output' => $output);
+        // Intent categorization
+        $intent = $this->categorize_intent($command);
+        
+        // Store in session for persistence
+        $this->store_message($command, $intent);
+
+        // Route based on intent
+        switch ($intent) {
+            case 'greeting':
+                return array('output' => $this->get_zork_response('greeting', $command));
+            case 'help':
+                return array('output' => $this->get_zork_response('help', $command));
+            case 'look':
+                return array('output' => $this->get_zork_response('look', $command));
+            case 'inventory':
+                return array('output' => $this->get_zork_response('inventory', $command));
+            case 'go':
+                return array('output' => $this->get_zork_response('go', $command));
+            case 'take':
+                return array('output' => $this->get_zork_response('take', $command));
+            case 'use':
+                return array('output' => $this->get_zork_response('use', $command));
+            case 'examine':
+                return array('output' => $this->get_zork_response('examine', $command));
+            case 'talk':
+                return array('output' => $this->get_zork_response('talk', $command));
+            case 'quit':
+                return array('output' => $this->get_zork_response('quit', $command));
+            case 'reflection':
+                return array('output' => $this->get_zork_response('reflection', $command));
+            case 'history':
+                return array('output' => $this->get_chat_history());
+            default:
+                // Fall back to shell execution for unknown intents
+                $output = execute_command($command);
+                if ($output && substr($output, -1) == "\n") $output = substr($output, 0, -1);
+                return array('output' => $output);
+        }
+    }
+
+    private function categorize_intent($command) {
+        $command = strtolower(trim($command));
+        
+        // Greeting patterns
+        if (preg_match('/^(hello|hi|hey|greetings|howdy|good\s*(morning|afternoon|evening)|yo|sup)/i', $command)) {
+            return 'greeting';
+        }
+        
+        // Help patterns
+        if (preg_match('/^(help|\?|commands|what can i do|how do i)/i', $command)) {
+            return 'help';
+        }
+        
+        // Look/examine patterns
+        if (preg_match('/^(look|l|see|observe|survey|scan)/i', $command)) {
+            return 'look';
+        }
+        
+        // Inventory patterns
+        if (preg_match('/^(inventory|i|bag|carrying|possessions)/i', $command)) {
+            return 'inventory';
+        }
+        
+        // Movement patterns
+        if (preg_match('/^(go|move|walk|travel|north|south|east|west|n|s|e|w|up|down|enter|exit)/i', $command)) {
+            return 'go';
+        }
+        
+        // Take/get patterns
+        if (preg_match('/^(take|get|grab|pick|collect|acquire)/i', $command)) {
+            return 'take';
+        }
+        
+        // Use patterns
+        if (preg_match('/^(use|apply|activate|trigger|invoke)/i', $command)) {
+            return 'use';
+        }
+        
+        // Examine patterns
+        if (preg_match('/^(examine|x|inspect|check|study|analyze)/i', $command)) {
+            return 'examine';
+        }
+        
+        // Talk patterns
+        if (preg_match('/^(talk|speak|say|tell|ask|converse|chat)/i', $command)) {
+            return 'talk';
+        }
+        
+        // Quit patterns
+        if (preg_match('/^(quit|exit|leave|bye|goodbye|end|stop)/i', $command)) {
+            return 'quit';
+        }
+        
+        // Reflection patterns
+        if (preg_match('/^(who am i|what am i|why am i|what is this|what are you|meaning|purpose|philosophy)/i', $command)) {
+            return 'reflection';
+        }
+        
+        // History patterns
+        if (preg_match('/^(history|log|past|previous|remember|recall)/i', $command)) {
+            return 'history';
+        }
+        
+        return 'unknown';
+    }
+
+    private function store_message($command, $intent) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['chat_history'])) {
+            $_SESSION['chat_history'] = array();
+        }
+        
+        $_SESSION['chat_history'][] = array(
+            'command' => $command,
+            'intent' => $intent,
+            'timestamp' => time()
+        );
+        
+        // Keep only last 50 messages
+        if (count($_SESSION['chat_history']) > 50) {
+            $_SESSION['chat_history'] = array_slice($_SESSION['chat_history'], -50);
+        }
+    }
+
+    private function get_zork_response($intent, $command) {
+        $responses = array(
+            'greeting' => array(
+                "Welcome, traveler. You stand at the edge of the digital realm.",
+                "Greetings, adventurer. The homestead awaits your commands.",
+                "Hello! You find yourself in a text adventure that blurs the line between man and machine.",
+                "Ah, a visitor! The terminal flickers with anticipation."
+            ),
+            'help' => array(
+                "Available commands: look, inventory, go [direction], take [item], use [item], examine [item], talk [npc], quit, history, [any shell command]",
+                "You can explore (look), check your belongings (inventory), move (go north/south/east/west), interact with objects (take/use/examine), converse (talk), review your journey (history), or leave (quit).",
+                "The ancient texts speak of commands: look, inventory, go, take, use, examine, talk, history, quit. Use them wisely."
+            ),
+            'look' => array(
+                "You survey your surroundings. The digital landscape stretches before you—a terminal interface to another world.",
+                "You look around. The screen glows with possibilities. A cursor blinks patiently, waiting for your next move.",
+                "The environment is sparse but functional. You see a web console, a gateway to server-side operations.",
+                "You observe the interface. It's both familiar and strange—a window into the machine."
+            ),
+            'inventory' => array(
+                "You check your pockets. You have: a curious device (this terminal), a connection to the digital realm, and your own curiosity.",
+                "Your inventory shows: web console access, terminal emulator, and the weight of philosophical questions.",
+                "You carry with you: the ability to execute commands, the patience to explore, and the wonder of existence."
+            ),
+            'go' => array(
+                "You attempt to move, but the digital realm has no physical boundaries. Perhaps try a different direction?",
+                "The terminal doesn't support physical movement, but you can navigate through commands and ideas.",
+                "You try to move, but remember—you're interacting through a web console. Your movement is through information, not space."
+            ),
+            'take' => array(
+                "You reach for the object, but it's digital. You can take information, knowledge, and experience—but not physical things.",
+                "The act of taking in this realm means to understand, to absorb, to make part of your digital self.",
+                "You can't physically take anything here, but you can capture ideas, learn concepts, and gather wisdom."
+            ),
+            'use' => array(
+                "You activate the terminal. It hums with potential, ready to execute your commands.",
+                "Using the console means engaging with the system. What would you like to do?",
+                "The terminal awaits your input. Use it to explore, to learn, to create."
+            ),
+            'examine' => array(
+                "You examine the interface closely. It's a web-based terminal, a bridge between human and machine.",
+                "Looking closely, you see the layers: HTML, JavaScript, PHP, all working together to create this experience.",
+                "The examination reveals complexity beneath simplicity. Like the best interfaces, it hides its machinery."
+            ),
+            'talk' => array(
+                "You speak, but who listens? The terminal processes your words, categorizes your intent, and responds.",
+                "In this realm, conversation is command and response. Your words become actions.",
+                "You try to talk. The system listens, understands, and replies in kind. A new form of dialogue."
+            ),
+            'quit' => array(
+                "You attempt to leave, but the digital realm is always with you. The terminal closes, but the questions remain.",
+                "Quitting is just another command. The adventure continues in your mind.",
+                "The screen fades, but the homestead endures. Return anytime."
+            ),
+            'reflection' => array(
+                "You ponder the nature of existence in digital form. What does it mean to be online? To have presence?",
+                "The question hangs in the air. An online presence is not just a website—it's a room someone can walk into.",
+                "You reflect: we are all travelers in digital realms, seeking meaning through interfaces and interactions.",
+                "The philosophical depth of your query is noted. The terminal hums with contemplation."
+            ),
+            'history' => array(
+                "The terminal accesses its memory banks. Your recent interactions are displayed below.",
+                "Your journey through this realm is recorded. Here is your path.",
+                "The system remembers. Your commands are stored in the digital ether, waiting to be recalled."
+            )
+        );
+        
+        $intent_responses = $responses[$intent];
+        return $intent_responses[array_rand($intent_responses)];
+    }
+
+    private function get_chat_history() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['chat_history']) || empty($_SESSION['chat_history'])) {
+            return "No conversation history yet. Your journey has just begun.";
+        }
+        
+        $history = $_SESSION['chat_history'];
+        $output = "=== Your Journey Through the Digital Realm ===\n\n";
+        
+        foreach ($history as $i => $entry) {
+            $time = date('H:i:s', $entry['timestamp']);
+            $output .= sprintf("[%s] %s (intent: %s)\n", $time, $entry['command'], $entry['intent']);
+        }
+        
+        $output .= "\n=== End of History ===";
+        return $output;
     }
 }
 
